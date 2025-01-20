@@ -15,5 +15,9 @@ app.use(cors());
 
 app.use("/api/image-details", imageDetailsRouter);
 
+app.get("/", (req, res) => {
+  return res.send("Hello Welcome to WearPair!!!");
+});
+
 const PORT = 5000;
 app.listen(PORT, () => console.log("listening on port " + PORT));
