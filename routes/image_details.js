@@ -5,6 +5,6 @@ const {
 
 const router = express.Router();
 
-router.route("/generate").get(getImageDetailsController);
+router.route("/generate").post(getImageDetailsController);
 
 module.exports = router;
