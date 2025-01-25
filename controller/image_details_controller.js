@@ -16,10 +16,11 @@ const getImageDetailsController = async (req, res) => {
       },
     },
 
-    "1. Identify the clothing item in the image (e.g., shirt, pants, jacket, etc.). 2. Describe the primary color of the clothing item in detail. 3. Suggest complementary colors for shirts, pants, or jackets that would pair well with this clothing item. 4. Provide the suggested colors as HEX codes in a single line, formatted as: Hex Codes for (Shirts/Pants/Jackets): #XXXXXX, #XXXXXX, #XXXXXX. Give all this details in json format",
+    "1. Identify the clothing item in the image (e.g., shirt, pants, jacket, etc.). 2. Describe the primary color of the clothing item in detail. 3. Suggest complementary colors for shirts, pants, or jackets that would pair well with this clothing item. 4. Provide the suggested colors as HEX codes in a single line, formatted as: Hex Codes for (shirts/pants/jackets): #XXXXXX, #XXXXXX, #XXXXXX. Give all this details in json format",
   ]);
   const parsedData = parseToJson(result.response.text());
   console.log(parsedData);
+  parsedData.selectedOutfit = url;
   return res.json(parsedData);
 };
 
