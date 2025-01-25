@@ -21,6 +21,7 @@ const getImageDetailsController = async (req, res) => {
   const parsedData = parseToJson(result.response.text());
   console.log(parsedData);
   parsedData.selectedOutfit = url;
+  parsedData.id = "1232";
   return res.json(parsedData);
 };
 
