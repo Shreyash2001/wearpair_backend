@@ -1,4 +1,72 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
+const { Mistral } = require("@mistralai/mistralai");
+const { cloth_details_prompt } = require("../utils/prompts");
+
+const fetchImageData = async (url) => {
+  const imageResp = await fetch(url);
+  if (!imageResp.ok) {
+    throw new Error(`Failed to fetch image. Status: ${imageResp.status}`);
+  }
+  return await imageResp.arrayBuffer();
+};
+
+const invokeGemini = async (imageBuffer, clothDetailsPrompt) => {
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+  const model = genAI.getGenerativeModel({ model: "models/gemini-1.5-pro" });
+  const result = await model.generateContent([
+    {
+      inlineData: {
+        data: Buffer.from(imageBuffer).toString("base64"),
+        mimeType: "image/jpeg",
+      },
+    },
+    clothDetailsPrompt,
+  ]);
+  return result.response.text();
+};
+
+const invokeMistral = async (url, clothDetailsPrompt) => {
+  const mistralClient = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
+  const mistralResponse = await mistralClient.chat.complete({
+    model: "pixtral-12b",
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: clothDetailsPrompt },
+          {
+            type: "image_url",
+            imageUrl: url,
+          },
+        ],
+      },
+    ],
+  });
+  return mistralResponse.choices[0].message.content;
+};
+
+const processWithLLMs = async (llms, imageBuffer, clothDetailsPrompt, url) => {
+  for (const llm of llms) {
+    try {
+      console.log(`Trying LLM: ${llm.name}`);
+      const aiResponseText = await llm.invoke(
+        imageBuffer,
+        clothDetailsPrompt,
+        url
+      );
+
+      const parsedData = parseToJson(aiResponseText);
+      if (parsedData && isValidResponse(parsedData)) {
+        return normalizeLLMResponse(parsedData, url); // Return normalized data on success
+      } else {
+        console.warn(`${llm.name} returned invalid data. Trying next...`);
+      }
+    } catch (err) {
+      console.error(`${llm.name} failed:`, err.message);
+    }
+  }
+  throw new Error("All LLMs failed to process the request.");
+};
 
 const getImageDetailsController = async (req, res) => {
   try {
@@ -9,46 +77,32 @@ const getImageDetailsController = async (req, res) => {
         .json({ error: "Invalid or missing 'url' in request body." });
     }
 
-    const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "models/gemini-1.5-pro" });
+    // Fetch image data
+    const imageBuffer = await fetchImageData(url);
 
-    const imageResp = await fetch(url);
-    if (!imageResp.ok) {
-      throw new Error(`Failed to fetch image. Status: ${imageResp.status}`);
-    }
-
-    const imageBuffer = await imageResp.arrayBuffer();
-
-    const result = await model.generateContent([
+    // Define LLMs in the fallback order
+    const llms = [
       {
-        inlineData: {
-          data: Buffer.from(imageBuffer).toString("base64"),
-          mimeType: "image/jpeg",
-        },
+        name: "Gemini",
+        invoke: async (imageBuffer, clothDetailsPrompt) =>
+          invokeGemini(imageBuffer, clothDetailsPrompt),
       },
-      "1. Identify the clothing item in the image (e.g., shirt, pants, jacket, etc.). 2. Describe the primary color of the clothing item in detail. 3. Suggest complementary colors for shirts, pants, or jackets that would pair well with this clothing item. 4. Provide the suggested colors as HEX codes in a single line, formatted as: Hex Codes for (shirts/pants/jackets): #XXXXXX, #XXXXXX, #XXXXXX. Give all this details in json format",
-    ]);
+      {
+        name: "Mistral",
+        invoke: async (_, clothDetailsPrompt, url) =>
+          invokeMistral(url, clothDetailsPrompt),
+      },
+      // Add more LLMs here as needed
+    ];
 
-    const aiResponseText = result.response.text();
-    console.log("AI response text:", aiResponseText);
-    const parsedData = parseToJson(aiResponseText);
+    // Process the request with LLMs
+    const normalizedData = await processWithLLMs(
+      llms,
+      imageBuffer,
+      cloth_details_prompt,
+      url
+    );
 
-    if (!parsedData) {
-      return res.status(500).json({ error: "Failed to parse AI response." });
-    }
-
-    // Validate the response structure
-    if (!isValidResponse(parsedData)) {
-      // Send an error response if validation fails
-      return res.status(400).json({
-        status: "failed",
-        error: "Invalid response format. Please retry.",
-      });
-    }
-
-    // Normalize the data into a fixed JSON structure
-    const normalizedData = normalizeLLMResponse(parsedData, url);
-    // console.log("Normalized data:", normalizedData);
     return res.json(normalizedData);
   } catch (error) {
     console.error("Error in getImageDetailsController:", error.message);
@@ -75,33 +129,26 @@ const normalizeLLMResponse = (data, url) => {
   return {
     clothing_item: data.clothing_item || "",
     primary_color_details: {
-      description: data.primary_color || "",
-      hex_codes: extractHexCodes(data.primary_color_details) || [],
+      description: data.primary_color_details?.description || "",
+      hex_codes: data.primary_color_details?.hex_codes || [],
     },
     complementary_colors: {
       shirts: {
-        description: data.complementary_colors?.shirts || "",
-        hex_codes: extractHexCodes(data.hex_codes?.shirts) || [],
+        description: data.complementary_colors?.shirts?.description || "",
+        hex_codes: data.complementary_colors?.shirts?.hex_codes || [],
       },
       jackets: {
-        description: data.complementary_colors?.jackets || "",
-        hex_codes: extractHexCodes(data.hex_codes?.jackets) || [],
+        description: data.complementary_colors?.jackets?.description || "",
+        hex_codes: data.complementary_colors?.jackets?.hex_codes || [],
       },
       pants: {
-        description: data.complementary_colors?.pants || "",
-        hex_codes: extractHexCodes(data.hex_codes?.pants) || [],
+        description: data.complementary_colors?.pants?.description || "",
+        hex_codes: data.complementary_colors?.pants?.hex_codes || [],
       },
     },
     selectedOutfit: url,
     id: "1232", // You can generate dynamic IDs here
   };
-};
-
-// Extract hex codes from a text string
-const extractHexCodes = (text) => {
-  if (!text || typeof text !== "string") return [];
-  const hexCodePattern = /#[A-Fa-f0-9]{6}/g;
-  return text.match(hexCodePattern) || [];
 };
 
 const isValidResponse = (data) => {
@@ -110,10 +157,22 @@ const isValidResponse = (data) => {
     data &&
     typeof data === "object" &&
     data.clothing_item &&
-    data.primary_color &&
+    data.primary_color_details &&
+    data.primary_color_details.hex_codes &&
+    data.primary_color_details.hex_codes.length >= 0 && // Ensures there are hex codes for primary color
     data.complementary_colors &&
-    (data.complementary_colors.shirts || data.complementary_colors.jackets) &&
-    data.hex_codes
+    data.complementary_colors.shirts &&
+    data.complementary_colors.shirts.description &&
+    data.complementary_colors.shirts.hex_codes &&
+    data.complementary_colors.shirts.hex_codes.length >= 0 &&
+    data.complementary_colors.jackets &&
+    data.complementary_colors.jackets.description &&
+    data.complementary_colors.jackets.hex_codes &&
+    data.complementary_colors.jackets.hex_codes.length >= 0 &&
+    data.complementary_colors.pants &&
+    data.complementary_colors.pants.description &&
+    data.complementary_colors.pants.hex_codes &&
+    data.complementary_colors.pants.hex_codes.length >= 0
   );
 };
 
