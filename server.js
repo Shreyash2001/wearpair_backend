@@ -1,11 +1,20 @@
 const express = require("express");
 const connectDB = require("./config/db");
 const cors = require("cors");
+const rateLimit = require("express-rate-limit");
 const dotenv = require("dotenv");
 dotenv.config();
 const imageDetailsRouter = require("./routes/image_details");
 
 const app = express();
+
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 1 minute
+  limit: 15, // Limit each IP to 3 requests per windowMs
+  message: "Too many requests from this IP, please try again after a minute",
+});
+
+app.use(limiter);
 
 app.use(express.json());
 
