@@ -83,15 +83,16 @@ const getImageDetailsController = async (req, res) => {
     // Define LLMs in the fallback order
     const llms = [
       {
-        name: "Gemini",
-        invoke: async (imageBuffer, clothDetailsPrompt) =>
-          invokeGemini(imageBuffer, clothDetailsPrompt),
-      },
-      {
         name: "Mistral",
         invoke: async (_, clothDetailsPrompt, url) =>
           invokeMistral(url, clothDetailsPrompt),
       },
+      {
+        name: "Gemini",
+        invoke: async (imageBuffer, clothDetailsPrompt) =>
+          invokeGemini(imageBuffer, clothDetailsPrompt),
+      },
+
       // Add more LLMs here as needed
     ];
 
