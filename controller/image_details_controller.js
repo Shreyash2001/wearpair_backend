@@ -56,7 +56,9 @@ const processWithLLMs = async (llms, imageBuffer, clothDetailsPrompt, url) => {
       );
 
       const parsedData = parseToJson(aiResponseText);
+      console.log(parsedData);
       if (parsedData && isValidResponse(parsedData)) {
+        console.log("62 " + parsedData);
         return normalizeLLMResponse(parsedData, url); // Return normalized data on success
       } else {
         console.warn(`${llm.name} returned invalid data. Trying next...`);
@@ -83,14 +85,14 @@ const getImageDetailsController = async (req, res) => {
     // Define LLMs in the fallback order
     const llms = [
       {
-        name: "Mistral",
-        invoke: async (_, clothDetailsPrompt, url) =>
-          invokeMistral(url, clothDetailsPrompt),
-      },
-      {
         name: "Gemini",
         invoke: async (imageBuffer, clothDetailsPrompt) =>
           invokeGemini(imageBuffer, clothDetailsPrompt),
+      },
+      {
+        name: "Mistral",
+        invoke: async (_, clothDetailsPrompt, url) =>
+          invokeMistral(url, clothDetailsPrompt),
       },
 
       // Add more LLMs here as needed
@@ -136,14 +138,20 @@ const normalizeLLMResponse = (data, url) => {
     complementary_colors: {
       shirts: {
         description: data.complementary_colors?.shirts?.description || "",
+        recommended_types:
+          data.complementary_colors?.shirts?.recommended_types || [],
         hex_codes: data.complementary_colors?.shirts?.hex_codes || [],
       },
       jackets: {
         description: data.complementary_colors?.jackets?.description || "",
+        recommended_types:
+          data.complementary_colors?.jackets?.recommended_types || [],
         hex_codes: data.complementary_colors?.jackets?.hex_codes || [],
       },
       pants: {
         description: data.complementary_colors?.pants?.description || "",
+        recommended_types:
+          data.complementary_colors?.pants?.recommended_types || [],
         hex_codes: data.complementary_colors?.pants?.hex_codes || [],
       },
     },
@@ -153,28 +161,32 @@ const normalizeLLMResponse = (data, url) => {
 };
 
 const isValidResponse = (data) => {
-  // Ensure the parsed data is an object and contains the required fields
-  return (
+  if (
     data &&
     typeof data === "object" &&
     data.clothing_item &&
     data.primary_color_details &&
     data.primary_color_details.hex_codes &&
-    data.primary_color_details.hex_codes.length >= 0 && // Ensures there are hex codes for primary color
+    data.primary_color_details.hex_codes.length >= 0 &&
     data.complementary_colors &&
     data.complementary_colors.shirts &&
-    data.complementary_colors.shirts.description &&
+    typeof data.complementary_colors.shirts.description === "string" &&
     data.complementary_colors.shirts.hex_codes &&
     data.complementary_colors.shirts.hex_codes.length >= 0 &&
     data.complementary_colors.jackets &&
-    data.complementary_colors.jackets.description &&
+    typeof data.complementary_colors.jackets.description === "string" &&
     data.complementary_colors.jackets.hex_codes &&
     data.complementary_colors.jackets.hex_codes.length >= 0 &&
     data.complementary_colors.pants &&
-    data.complementary_colors.pants.description &&
+    typeof data.complementary_colors.pants.description === "string" &&
     data.complementary_colors.pants.hex_codes &&
     data.complementary_colors.pants.hex_codes.length >= 0
-  );
+  ) {
+    return true;
+  } else {
+    console.log("i failed");
+    return false;
+  }
 };
 
 module.exports = { getImageDetailsController };
