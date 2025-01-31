@@ -23,6 +23,7 @@ const invokeGemini = async (imageBuffer, clothDetailsPrompt) => {
     },
     clothDetailsPrompt,
   ]);
+  console.log(result.response.text());
   return result.response.text();
 };
 
@@ -125,6 +126,7 @@ const getImageDetailsController = async (req, res) => {
         invoke: async (_, clothDetailsPrompt, url) =>
           invokeGroq(url, clothDetailsPrompt),
       },
+
       {
         name: "Mistral",
         invoke: async (_, clothDetailsPrompt, url) =>
@@ -164,7 +166,6 @@ const parseToJson = (inputString) => {
 
 // Function to normalize LLM response into a fixed JSON structure
 const normalizeLLMResponse = (data, url) => {
-  // Fixed structure with fallback values
   return {
     clothing_item: data.clothing_item || "",
     primary_color_details: {
@@ -189,6 +190,70 @@ const normalizeLLMResponse = (data, url) => {
         recommended_types:
           data.complementary_colors?.pants?.recommended_types || [],
         hex_codes: data.complementary_colors?.pants?.hex_codes || [],
+      },
+    },
+    accessories: {
+      gender: data.accessories?.gender || "Unspecified",
+      women: {
+        handbags: {
+          description: data.accessories?.women?.handbags?.description || "",
+          recommended_types:
+            data.accessories?.women?.handbags?.recommended_types || [],
+          hex_codes: data.accessories?.women?.handbags?.hex_codes || [],
+        },
+        earrings: {
+          description: data.accessories?.women?.earrings?.description || "",
+          recommended_types:
+            data.accessories?.women?.earrings?.recommended_types || [],
+          hex_codes: data.accessories?.women?.earrings?.hex_codes || [],
+        },
+        bracelets: {
+          description: data.accessories?.women?.bracelets?.description || "",
+          recommended_types:
+            data.accessories?.women?.bracelets?.recommended_types || [],
+          hex_codes: data.accessories?.women?.bracelets?.hex_codes || [],
+        },
+        necklaces: {
+          description: data.accessories?.women?.necklaces?.description || "",
+          recommended_types:
+            data.accessories?.women?.necklaces?.recommended_types || [],
+          hex_codes: data.accessories?.women?.necklaces?.hex_codes || [],
+        },
+        footwear: {
+          description: data.accessories?.women?.footwear?.description || "",
+          recommended_types:
+            data.accessories?.women?.footwear?.recommended_types || [],
+          hex_codes: data.accessories?.women?.footwear?.hex_codes || [],
+        },
+      },
+      men: {
+        footwear: {
+          description: data.accessories?.men?.footwear?.description || "",
+          recommended_types:
+            data.accessories?.men?.footwear?.recommended_types || [],
+          hex_codes: data.accessories?.men?.footwear?.hex_codes || [],
+        },
+        watches: {
+          description: data.accessories?.men?.watches?.description || "",
+          recommended_types:
+            data.accessories?.men?.watches?.recommended_types || [],
+          hex_codes: data.accessories?.men?.watches?.hex_codes || [],
+        },
+        sunglasses: {
+          description: data.accessories?.men?.sunglasses?.description || "",
+          recommended_types:
+            data.accessories?.men?.sunglasses?.recommended_types || [],
+          hex_codes: data.accessories?.men?.sunglasses?.hex_codes || [],
+        },
+        additional_accessories: {
+          description:
+            data.accessories?.men?.additional_accessories?.description || "",
+          recommended_types:
+            data.accessories?.men?.additional_accessories?.recommended_types ||
+            [],
+          hex_codes:
+            data.accessories?.men?.additional_accessories?.hex_codes || [],
+        },
       },
     },
     selectedOutfit: url,
