@@ -1,5 +1,6 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { Mistral } = require("@mistralai/mistralai");
+const { Groq } = require("groq-sdk");
 const { cloth_details_prompt } = require("../utils/prompts");
 
 const fetchImageData = async (url) => {
@@ -45,6 +46,38 @@ const invokeMistral = async (url, clothDetailsPrompt) => {
   return mistralResponse.choices[0].message.content;
 };
 
+const invokeGroq = async (url, clothDetailsPrompt) => {
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  const chatCompletion = await groq.chat.completions.create({
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: clothDetailsPrompt,
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: url,
+            },
+          },
+        ],
+      },
+    ],
+    model: "llama-3.2-11b-vision-preview",
+    temperature: 1,
+    max_completion_tokens: 1024,
+    top_p: 1,
+    stream: false,
+    stop: null,
+  });
+
+  console.log(chatCompletion.choices[0].message.content);
+  return chatCompletion.choices[0].message.content;
+};
+
 const processWithLLMs = async (llms, imageBuffer, clothDetailsPrompt, url) => {
   for (const llm of llms) {
     try {
@@ -56,9 +89,7 @@ const processWithLLMs = async (llms, imageBuffer, clothDetailsPrompt, url) => {
       );
 
       const parsedData = parseToJson(aiResponseText);
-      console.log(parsedData);
       if (parsedData && isValidResponse(parsedData)) {
-        console.log("62 " + parsedData);
         return normalizeLLMResponse(parsedData, url); // Return normalized data on success
       } else {
         console.warn(`${llm.name} returned invalid data. Trying next...`);
@@ -88,6 +119,11 @@ const getImageDetailsController = async (req, res) => {
         name: "Gemini",
         invoke: async (imageBuffer, clothDetailsPrompt) =>
           invokeGemini(imageBuffer, clothDetailsPrompt),
+      },
+      {
+        name: "Groq",
+        invoke: async (_, clothDetailsPrompt, url) =>
+          invokeGroq(url, clothDetailsPrompt),
       },
       {
         name: "Mistral",
