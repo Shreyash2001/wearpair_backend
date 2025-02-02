@@ -122,15 +122,14 @@ const getImageDetailsController = async (req, res) => {
           invokeGemini(imageBuffer, clothDetailsPrompt),
       },
       {
-        name: "Groq",
-        invoke: async (_, clothDetailsPrompt, url) =>
-          invokeGroq(url, clothDetailsPrompt),
-      },
-
-      {
         name: "Mistral",
         invoke: async (_, clothDetailsPrompt, url) =>
           invokeMistral(url, clothDetailsPrompt),
+      },
+      {
+        name: "Groq",
+        invoke: async (_, clothDetailsPrompt, url) =>
+          invokeGroq(url, clothDetailsPrompt),
       },
 
       // Add more LLMs here as needed
@@ -173,11 +172,11 @@ const normalizeLLMResponse = (data, url) => {
       hex_codes: data.primary_color_details?.hex_codes || [],
     },
     complementary_colors: {
-      shirts: {
-        description: data.complementary_colors?.shirts?.description || "",
+      topwear: {
+        description: data.complementary_colors?.topwear?.description || "",
         recommended_types:
-          data.complementary_colors?.shirts?.recommended_types || [],
-        hex_codes: data.complementary_colors?.shirts?.hex_codes || [],
+          data.complementary_colors?.topwear?.recommended_types || [],
+        hex_codes: data.complementary_colors?.topwear?.hex_codes || [],
       },
       jackets: {
         description: data.complementary_colors?.jackets?.description || "",
@@ -185,11 +184,11 @@ const normalizeLLMResponse = (data, url) => {
           data.complementary_colors?.jackets?.recommended_types || [],
         hex_codes: data.complementary_colors?.jackets?.hex_codes || [],
       },
-      pants: {
-        description: data.complementary_colors?.pants?.description || "",
+      bottomwear: {
+        description: data.complementary_colors?.bottomwear?.description || "",
         recommended_types:
-          data.complementary_colors?.pants?.recommended_types || [],
-        hex_codes: data.complementary_colors?.pants?.hex_codes || [],
+          data.complementary_colors?.bottomwear?.recommended_types || [],
+        hex_codes: data.complementary_colors?.bottomwear?.hex_codes || [],
       },
     },
     accessories: {
@@ -270,18 +269,18 @@ const isValidResponse = (data) => {
     data.primary_color_details.hex_codes &&
     data.primary_color_details.hex_codes.length >= 0 &&
     data.complementary_colors &&
-    data.complementary_colors.shirts &&
-    typeof data.complementary_colors.shirts.description === "string" &&
-    data.complementary_colors.shirts.hex_codes &&
-    data.complementary_colors.shirts.hex_codes.length >= 0 &&
+    data.complementary_colors.topwear &&
+    typeof data.complementary_colors.topwear.description === "string" &&
+    data.complementary_colors.topwear.hex_codes &&
+    data.complementary_colors.topwear.hex_codes.length >= 0 &&
     data.complementary_colors.jackets &&
     typeof data.complementary_colors.jackets.description === "string" &&
     data.complementary_colors.jackets.hex_codes &&
     data.complementary_colors.jackets.hex_codes.length >= 0 &&
-    data.complementary_colors.pants &&
-    typeof data.complementary_colors.pants.description === "string" &&
-    data.complementary_colors.pants.hex_codes &&
-    data.complementary_colors.pants.hex_codes.length >= 0
+    data.complementary_colors.bottomwear &&
+    typeof data.complementary_colors.bottomwear.description === "string" &&
+    data.complementary_colors.bottomwear.hex_codes &&
+    data.complementary_colors.bottomwear.hex_codes.length >= 0
   ) {
     return true;
   } else {

@@ -22,7 +22,7 @@ The response must follow this strict JSON structure:
        "hex_codes": ["<string>"]
    },
    "complementary_colors": {
-       "shirts": {
+       "topwear": {
            "description": "<string>",
            "recommended_types": "[<string>]",
            "hex_codes": ["<string>"]
@@ -32,7 +32,7 @@ The response must follow this strict JSON structure:
            "recommended_types": "[<string>]",
            "hex_codes": ["<string>"]
        },
-       "pants": {
+       "bottomwear": {
            "description": "<string>",
            "recommended_types": "[<string>]",
            "hex_codes": ["<string>"]
