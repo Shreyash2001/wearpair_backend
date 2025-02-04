@@ -1,7 +1,10 @@
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const { Mistral } = require("@mistralai/mistralai");
 const { Groq } = require("groq-sdk");
-const { cloth_details_prompt } = require("../utils/prompts");
+const {
+  cloth_details_prompt,
+  occassion_dress_prompt,
+} = require("../utils/prompts");
 
 const fetchImageData = async (url) => {
   const imageResp = await fetch(url);
@@ -9,6 +12,23 @@ const fetchImageData = async (url) => {
     throw new Error(`Failed to fetch image. Status: ${imageResp.status}`);
   }
   return await imageResp.arrayBuffer();
+};
+
+const invokeGeminiForOccassion = async (imageBuffer, clothDetailsPrompt) => {
+  const genAI = new GoogleGenerativeAI(process.env.GOOGLE_API_KEY);
+  const model = genAI.getGenerativeModel({ model: "models/gemini-1.5-pro" });
+  console.log("occassion called");
+  const result = await model.generateContent([
+    {
+      inlineData: {
+        data: Buffer.from(imageBuffer).toString("base64"),
+        mimeType: "image/jpeg",
+      },
+    },
+    occassion_dress_prompt,
+  ]);
+  console.log(result.response.text());
+  return result.response.text();
 };
 
 const invokeGemini = async (imageBuffer, clothDetailsPrompt) => {
@@ -47,6 +67,28 @@ const invokeMistral = async (url, clothDetailsPrompt) => {
   return mistralResponse.choices[0].message.content;
 };
 
+const invokeMistralForOccassion = async (url, clothDetailsPrompt) => {
+  console.log("Mistral called");
+  const mistralClient = new Mistral({ apiKey: process.env.MISTRAL_API_KEY });
+  const mistralResponse = await mistralClient.chat.complete({
+    model: "pixtral-12b",
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "text", text: occassion_dress_prompt },
+          {
+            type: "image_url",
+            imageUrl: url,
+          },
+        ],
+      },
+    ],
+  });
+  console.log(mistralResponse.choices[0].message.content);
+  return mistralResponse.choices[0].message.content;
+};
+
 const invokeGroq = async (url, clothDetailsPrompt) => {
   const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
   const chatCompletion = await groq.chat.completions.create({
@@ -57,6 +99,39 @@ const invokeGroq = async (url, clothDetailsPrompt) => {
           {
             type: "text",
             text: clothDetailsPrompt,
+          },
+          {
+            type: "image_url",
+            image_url: {
+              url: url,
+            },
+          },
+        ],
+      },
+    ],
+    model: "llama-3.2-11b-vision-preview",
+    temperature: 1,
+    max_completion_tokens: 1024,
+    top_p: 1,
+    stream: false,
+    stop: null,
+  });
+
+  console.log(chatCompletion.choices[0].message.content);
+  return chatCompletion.choices[0].message.content;
+};
+
+const invokeGroqForOccassion = async (url, clothDetailsPrompt) => {
+  console.log("groq for occassion called");
+  const groq = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  const chatCompletion = await groq.chat.completions.create({
+    messages: [
+      {
+        role: "user",
+        content: [
+          {
+            type: "text",
+            text: occassion_dress_prompt,
           },
           {
             type: "image_url",
@@ -100,6 +175,70 @@ const processWithLLMs = async (llms, imageBuffer, clothDetailsPrompt, url) => {
     }
   }
   throw new Error("All LLMs failed to process the request.");
+};
+
+const processWithLLMsForOccassion = async (
+  llms,
+  imageBuffer,
+  clothDetailsPrompt,
+  url
+) => {
+  for (const llm of llms) {
+    try {
+      console.log(`Trying LLM: ${llm.name}`);
+      const aiResponseText = await llm.invoke(
+        imageBuffer,
+        clothDetailsPrompt,
+        url
+      );
+
+      const parsedData = aiResponseText;
+    } catch (err) {
+      console.error(`${llm.name} failed:`, err.message);
+    }
+  }
+  throw new Error("All LLMs failed to process the request.");
+};
+
+const getOccassionDetailsController = async (req, res) => {
+  try {
+    const { url } = req.body;
+    if (!url || typeof url !== "string") {
+      return res
+        .status(400)
+        .json({ error: "Invalid or missing 'url' in request body." });
+    }
+
+    // Fetch image data
+    const imageBuffer = await fetchImageData(url);
+    const llms = [
+      // {
+      //   name: "Gemini",
+      //   invoke: async (imageBuffer, clothDetailsPrompt) =>
+      //     invokeGeminiForOccassion(imageBuffer, clothDetailsPrompt),
+      // },
+      {
+        name: "Mistral",
+        invoke: async (_, clothDetailsPrompt, url) =>
+          invokeMistralForOccassion(url, clothDetailsPrompt),
+      },
+      // {
+      //   name: "Groq",
+      //   invoke: async (_, clothDetailsPrompt, url) =>
+      //     invokeGroqForOccassion(url, clothDetailsPrompt),
+      // },
+
+      // Add more LLMs here as needed
+    ];
+    const data = await processWithLLMsForOccassion(
+      llms,
+      imageBuffer,
+      cloth_details_prompt,
+      url
+    );
+  } catch (error) {
+    return res.status(500).json(error);
+  }
 };
 
 const getImageDetailsController = async (req, res) => {
@@ -289,4 +428,4 @@ const isValidResponse = (data) => {
   }
 };
 
-module.exports = { getImageDetailsController };
+module.exports = { getImageDetailsController, getOccassionDetailsController };
