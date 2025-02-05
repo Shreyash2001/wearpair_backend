@@ -105,7 +105,7 @@ a.Body Shape: Identify whether the user has a pear, rectangle, inverted triangle
 b.Skin Color: Provide a brief description of the skin tone.
 c.Hair Details: Identify the hairstyle and hair color.
 d.Approximate Measurements: Estimate waist size, thigh size, and chest size.
-2.The user is Going on a Corporate Party.
+2.The user is Going on a Date.
 3. Suggest accessories based on gender:
 a. Identify whether the item is primarily for men or women—do not return 'Both' as a gender. If it's a unisex item, categorize it under the most commonly worn gender based on fashion standards.
 b. For women, suggest handbags, earrings, bracelets, necklaces, and shoes/sandals/footwear with color recommendations and types.
@@ -154,11 +154,6 @@ Give the relevant clothing depending on this points. Try to give atleast 5 topwe
                "hex_codes": ["<string>"]
            },
            "necklaces": {
-               "description": "<string>",
-               "recommended_types": ["<string>"],
-               "hex_codes": ["<string>"]
-           },
-           "footwear": {
                "description": "<string>",
                "recommended_types": ["<string>"],
                "hex_codes": ["<string>"]

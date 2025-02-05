@@ -1,8 +1,10 @@
 const express = require("express");
 const {
   getImageDetailsController,
-  getOccassionDetailsController,
 } = require("../controller/image_details_controller");
+const {
+  getOccassionDetailsController,
+} = require("../controller/occassion_details_controller");
 
 const router = express.Router();
 
