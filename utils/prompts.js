@@ -100,6 +100,32 @@ The recommended_types field should specify appropriate styles.
 
 Provide only the JSON response without any additional text or explanation.`;
 
+const extractImageDetails = `Extract the following details from the uploaded image: 
+1.Body Shape - Identify and classify the body shape (e.g., Hourglass, Pear, Rectangle, etc.).
+2.Skin Tone - Detect and classify the skin color.
+3.Hair Details - Extract hair attributes including color, type (straight, wavy, curly, coily), and length (short, medium, long).
+4.Approximate Body Measurements - Estimate key measurements such as height, shoulder width, chest, waist, and hip size.
+5.Gender - Determine the likely gender based on body features.
+Based on the detected features give the details in JSON format with the following structure:
+{
+  "body_shape": "<string>",
+  "skin_tone": "<string>",
+  "hair_details": {
+    "color": "<string>",
+    "type": "<string>",
+    "length": "<string>"
+  },
+  "approximate_measurements": {
+    "height": "<number> cm",
+    "shoulder_width": "<number> cm",
+    "chest": "<number> cm",
+    "waist": "<number> cm",
+    "hip": "<number> cm"
+  },
+  "gender": "<string>"
+}
+`;
+
 const occassion_dress_prompt = `1.Extract the following details from the uploaded image:
 a.Body Shape: Identify whether the user has a pear, rectangle, inverted triangle, hourglass, or oval body shape.
 b.Skin Color: Provide a brief description of the skin tone.
@@ -188,4 +214,8 @@ Ensure all fields are present even if the values are empty.
 Give Minimum 5 recommendation for each type of clothing.
 Provide only the JSON response without any additional text or explanation.`;
 
-module.exports = { cloth_details_prompt, occassion_dress_prompt };
+module.exports = {
+  cloth_details_prompt,
+  occassion_dress_prompt,
+  extractImageDetails,
+};
