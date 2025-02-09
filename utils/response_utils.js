@@ -21,6 +21,12 @@ const normalizeLLMResponse = (data, url) => {
     complementary_colors: {
       topwear: {
         description: data.complementary_colors?.topwear?.description || "",
+        // recommended_types: (
+        //   data.complementary_colors?.topwear?.recommended_types || []
+        // ).map((type) => ({
+        //   title: type,
+        //   image: "", // Placeholder for image
+        // })),
         recommended_types:
           data.complementary_colors?.topwear?.recommended_types || [],
         hex_codes: data.complementary_colors?.topwear?.hex_codes || [],

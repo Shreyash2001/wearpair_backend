@@ -1,3 +1,4 @@
+const { getImagesApiService } = require("../services/imagesApiService");
 const { fetchImageData } = require("../services/imageService");
 const {
   processWithLLMs,
@@ -20,11 +21,24 @@ const getImageDetailsController = async (req, res) => {
     // Process the request with LLMs
     const normalizedData = await processWithLLMs(imageBuffer, url);
 
+    // await addCatalogToData(normalizedData);
     return res.json(normalizedData);
   } catch (error) {
     console.error("Error in getImageDetailsController:", error.message);
     return res.status(500).json({ error: "An unexpected error occurred." });
   }
+};
+
+const addCatalogToData = async (normalizedData) => {
+  const imageDetails = {};
+  normalizedData.complementary_colors.topwear.recommended_types.map(
+    async (item) => {
+      const data = await getImagesApiService(item);
+      imageDetails = {
+        images: data.catalogs[0].images,
+      };
+    }
+  );
 };
 
 const extractImageDetailsController = async (req, res) => {
@@ -35,6 +49,7 @@ const extractImageDetailsController = async (req, res) => {
         .status(400)
         .json({ error: "Invalid or missing 'url' in request body." });
     }
+
     const imageBuffer = await fetchImageData(url);
     const data = await processExtractionWithLLMs(imageBuffer, url);
 
