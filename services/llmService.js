@@ -198,21 +198,26 @@ const invokeLlamaForExtraction = async (url, clothDetailsPrompt) => {
 
 const processWithLLMs = async (imageBuffer, url) => {
   const llms = [
-    {
-      name: "Gemini",
-      invoke: async (imageBuffer, clothDetailsPrompt) =>
-        invokeGemini(imageBuffer, clothDetailsPrompt),
-    },
+    // {
+    //   name: "Llama",
+    //   invoke: async (_, clothDetailsPrompt, url) =>
+    //     invokeLlamaForExtraction(url, clothDetailsPrompt),
+    // },
+    // {
+    //   name: "Gemini",
+    //   invoke: async (imageBuffer, clothDetailsPrompt) =>
+    //     invokeGemini(imageBuffer, clothDetailsPrompt),
+    // },
     {
       name: "Mistral",
       invoke: async (_, clothDetailsPrompt, url) =>
         invokeMistral(url, clothDetailsPrompt),
     },
-    {
-      name: "Groq",
-      invoke: async (_, clothDetailsPrompt, url) =>
-        invokeGroq(url, clothDetailsPrompt),
-    },
+    // {
+    //   name: "Groq",
+    //   invoke: async (_, clothDetailsPrompt, url) =>
+    //     invokeGroq(url, clothDetailsPrompt),
+    // },
   ];
 
   for (const llm of llms) {
@@ -225,6 +230,7 @@ const processWithLLMs = async (imageBuffer, url) => {
       );
 
       const parsedData = parseToJson(aiResponseText);
+
       if (parsedData && isValidResponse(parsedData)) {
         return normalizeLLMResponse(parsedData, url); // Return normalized data on success
       } else {

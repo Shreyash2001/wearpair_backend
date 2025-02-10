@@ -1,4 +1,7 @@
-const { getImagesApiService } = require("../services/imagesApiService");
+const {
+  getImagesApiService,
+  getGoogleImages,
+} = require("../services/imagesApiService");
 const { fetchImageData } = require("../services/imageService");
 const {
   processWithLLMs,
@@ -17,6 +20,12 @@ const getImageDetailsController = async (req, res) => {
 
     // Fetch image data
     const imageBuffer = await fetchImageData(url);
+    // const getNamedColor = async (color) => {
+    //   const response = await axios.get(
+    //     `https://api.color.pizza/v1/?values=${color}`
+    //   );
+    //   console.log(response);
+    // };
 
     // Process the request with LLMs
     const normalizedData = await processWithLLMs(imageBuffer, url);
@@ -30,15 +39,42 @@ const getImageDetailsController = async (req, res) => {
 };
 
 const addCatalogToData = async (normalizedData) => {
-  const imageDetails = {};
-  normalizedData.complementary_colors.topwear.recommended_types.map(
-    async (item) => {
-      const data = await getImagesApiService(item);
-      imageDetails = {
-        images: data.catalogs[0].images,
-      };
-    }
+  // Function to fetch images and update recommended_types
+  const updateImages = async (section, type, gender) => {
+    if (!section || !section.recommended_types) return;
+
+    await Promise.all(
+      section.recommended_types.map(async (item) => {
+        const query = {
+          type: type,
+          title: item.title,
+          color: section?.hex_codes[0],
+          gender: gender,
+        };
+        const images = await getGoogleImages(query);
+        console.log(images);
+        item.image = images.length > 0 ? images[0] : "";
+      })
+    );
+  };
+
+  // Updating all sections
+  await updateImages(
+    normalizedData.complementary_colors.topwear,
+    "Clothing Item",
+    normalizedData?.gender
   );
+  // await updateImages(normalizedData.complementary_colors.jackets);
+  // await updateImages(normalizedData.complementary_colors.bottomwear);
+  // await updateImages(normalizedData.accessories.women.handbags);
+  // await updateImages(normalizedData.accessories.women.earrings);
+  // await updateImages(normalizedData.accessories.women.bracelets);
+  // await updateImages(normalizedData.accessories.women.necklaces);
+  // await updateImages(normalizedData.accessories.women.footwear);
+  // await updateImages(normalizedData.accessories.men.footwear);
+  // await updateImages(normalizedData.accessories.men.watches);
+  // await updateImages(normalizedData.accessories.men.sunglasses);
+  // await updateImages(normalizedData.accessories.men.additional_accessories);
 };
 
 const extractImageDetailsController = async (req, res) => {

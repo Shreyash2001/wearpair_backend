@@ -11,12 +11,13 @@ c. For men, suggest footwear, watches, sunglasses, and additional relevant acces
 
 5. When suggesting colors, include a brief description of the type of clothing that pairs well.
 
-6. Provide the suggested colors as HEX codes in a single line, formatted as:Hex Codes for (shirts/pants/jackets): #XXXXXX, #XXXXXX, #XXXXXX.
+6. Provide the suggested colors as HEX codes in a single line, formatted as:Hex Codes: #XXXXXX, #XXXXXX, #XXXXXX.
 
 The response must follow this strict JSON structure:
 
 {
    "clothing_item": "<string>",
+   "gender":"<string>",
    "primary_color_details": {
        "description": "<string>",
        "hex_codes": ["<string>"]
