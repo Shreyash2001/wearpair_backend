@@ -60,7 +60,7 @@ const getImagesByFilteringController = async (req, res) => {
     // Fetch images from Google API
     const query = { type, category, gender, color, title };
     const images = await getGoogleImages(query);
-    return res.json({ category, images });
+    return res.json({ category, images, title });
   } catch (error) {
     console.error("Error fetching images:", error);
     return res.status(500).json({ error: "Server error" });
