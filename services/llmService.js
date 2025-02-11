@@ -203,21 +203,21 @@ const processWithLLMs = async (imageBuffer, url) => {
     //   invoke: async (_, clothDetailsPrompt, url) =>
     //     invokeLlamaForExtraction(url, clothDetailsPrompt),
     // },
-    // {
-    //   name: "Gemini",
-    //   invoke: async (imageBuffer, clothDetailsPrompt) =>
-    //     invokeGemini(imageBuffer, clothDetailsPrompt),
-    // },
+    {
+      name: "Gemini",
+      invoke: async (imageBuffer, clothDetailsPrompt) =>
+        invokeGemini(imageBuffer, clothDetailsPrompt),
+    },
     {
       name: "Mistral",
       invoke: async (_, clothDetailsPrompt, url) =>
         invokeMistral(url, clothDetailsPrompt),
     },
-    // {
-    //   name: "Groq",
-    //   invoke: async (_, clothDetailsPrompt, url) =>
-    //     invokeGroq(url, clothDetailsPrompt),
-    // },
+    {
+      name: "Groq",
+      invoke: async (_, clothDetailsPrompt, url) =>
+        invokeGroq(url, clothDetailsPrompt),
+    },
   ];
 
   for (const llm of llms) {

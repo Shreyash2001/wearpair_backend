@@ -4,7 +4,7 @@ const cors = require("cors");
 const rateLimit = require("express-rate-limit");
 const dotenv = require("dotenv");
 dotenv.config();
-const imageDetailsRouter = require("./routes/image_details");
+const imageDetailsRouter = require("./routes/image_detail_routes");
 
 const app = express();
 
