@@ -26,7 +26,7 @@ const normalizeLLMResponse = (data, url) => {
           data.complementary_colors?.topwear?.recommended_types || []
         ).map((type) => ({
           title: type,
-          image: "",
+          image: [""],
         })),
         hex_codes: data.complementary_colors?.topwear?.hex_codes || [],
       },
@@ -36,7 +36,7 @@ const normalizeLLMResponse = (data, url) => {
           data.complementary_colors?.jackets?.recommended_types || []
         ).map((type) => ({
           title: type,
-          image: "",
+          image: [""],
         })),
         hex_codes: data.complementary_colors?.jackets?.hex_codes || [],
       },
@@ -46,7 +46,7 @@ const normalizeLLMResponse = (data, url) => {
           data.complementary_colors?.bottomwear?.recommended_types || []
         ).map((type) => ({
           title: type,
-          image: "",
+          image: [""],
         })),
         hex_codes: data.complementary_colors?.bottomwear?.hex_codes || [],
       },
@@ -60,7 +60,7 @@ const normalizeLLMResponse = (data, url) => {
             data.accessories?.women?.handbags?.recommended_types || []
           ).map((type) => ({
             title: type,
-            image: "",
+            image: [""],
           })),
           hex_codes: data.accessories?.women?.handbags?.hex_codes || [],
         },
@@ -70,7 +70,7 @@ const normalizeLLMResponse = (data, url) => {
             data.accessories?.women?.earrings?.recommended_types || []
           ).map((type) => ({
             title: type,
-            image: "",
+            image: [""],
           })),
           hex_codes: data.accessories?.women?.earrings?.hex_codes || [],
         },
@@ -80,7 +80,7 @@ const normalizeLLMResponse = (data, url) => {
             data.accessories?.women?.bracelets?.recommended_types || []
           ).map((type) => ({
             title: type,
-            image: "",
+            image: [""],
           })),
           hex_codes: data.accessories?.women?.bracelets?.hex_codes || [],
         },
@@ -90,7 +90,7 @@ const normalizeLLMResponse = (data, url) => {
             data.accessories?.women?.necklaces?.recommended_types || []
           ).map((type) => ({
             title: type,
-            image: "",
+            image: [""],
           })),
           hex_codes: data.accessories?.women?.necklaces?.hex_codes || [],
         },
@@ -100,7 +100,7 @@ const normalizeLLMResponse = (data, url) => {
             data.accessories?.women?.footwear?.recommended_types || []
           ).map((type) => ({
             title: type,
-            image: "",
+            image: [""],
           })),
           hex_codes: data.accessories?.women?.footwear?.hex_codes || [],
         },
@@ -112,7 +112,7 @@ const normalizeLLMResponse = (data, url) => {
             data.accessories?.men?.footwear?.recommended_types || []
           ).map((type) => ({
             title: type,
-            image: "",
+            image: [""],
           })),
           hex_codes: data.accessories?.men?.footwear?.hex_codes || [],
         },
@@ -122,7 +122,7 @@ const normalizeLLMResponse = (data, url) => {
             data.accessories?.men?.watches?.recommended_types || []
           ).map((type) => ({
             title: type,
-            image: "",
+            image: [""],
           })),
           hex_codes: data.accessories?.men?.watches?.hex_codes || [],
         },
@@ -132,7 +132,7 @@ const normalizeLLMResponse = (data, url) => {
             data.accessories?.men?.sunglasses?.recommended_types || []
           ).map((type) => ({
             title: type,
-            image: "",
+            image: [""],
           })),
           hex_codes: data.accessories?.men?.sunglasses?.hex_codes || [],
         },
@@ -144,7 +144,7 @@ const normalizeLLMResponse = (data, url) => {
             []
           ).map((type) => ({
             title: type,
-            image: "",
+            image: [""],
           })),
           hex_codes:
             data.accessories?.men?.additional_accessories?.hex_codes || [],
