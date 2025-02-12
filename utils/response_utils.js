@@ -19,36 +19,36 @@ const normalizeLLMResponse = (data, url) => {
       description: data.primary_color_details?.description || "",
       hex_codes: data.primary_color_details?.hex_codes || [],
     },
-    complementary_colors: {
+    complementary: {
       topwear: {
-        description: data.complementary_colors?.topwear?.description || "",
+        description: data.complementary?.topwear?.description || "",
         recommended_types: (
-          data.complementary_colors?.topwear?.recommended_types || []
+          data.complementary?.topwear?.recommended_types || []
         ).map((type) => ({
           title: type,
           image: [""],
         })),
-        hex_codes: data.complementary_colors?.topwear?.hex_codes || [],
+        hex_codes: data.complementary?.topwear?.hex_codes || [],
       },
       jackets: {
-        description: data.complementary_colors?.jackets?.description || "",
+        description: data.complementary?.jackets?.description || "",
         recommended_types: (
-          data.complementary_colors?.jackets?.recommended_types || []
+          data.complementary?.jackets?.recommended_types || []
         ).map((type) => ({
           title: type,
           image: [""],
         })),
-        hex_codes: data.complementary_colors?.jackets?.hex_codes || [],
+        hex_codes: data.complementary?.jackets?.hex_codes || [],
       },
       bottomwear: {
-        description: data.complementary_colors?.bottomwear?.description || "",
+        description: data.complementary?.bottomwear?.description || "",
         recommended_types: (
-          data.complementary_colors?.bottomwear?.recommended_types || []
+          data.complementary?.bottomwear?.recommended_types || []
         ).map((type) => ({
           title: type,
           image: [""],
         })),
-        hex_codes: data.complementary_colors?.bottomwear?.hex_codes || [],
+        hex_codes: data.complementary?.bottomwear?.hex_codes || [],
       },
     },
     accessories: {
@@ -165,19 +165,19 @@ const isValidResponse = (data) => {
     data.primary_color_details &&
     data.primary_color_details.hex_codes &&
     data.primary_color_details.hex_codes.length >= 0 &&
-    data.complementary_colors &&
-    data.complementary_colors.topwear &&
-    typeof data.complementary_colors.topwear.description === "string" &&
-    data.complementary_colors.topwear.hex_codes &&
-    data.complementary_colors.topwear.hex_codes.length >= 0 &&
-    data.complementary_colors.jackets &&
-    typeof data.complementary_colors.jackets.description === "string" &&
-    data.complementary_colors.jackets.hex_codes &&
-    data.complementary_colors.jackets.hex_codes.length >= 0 &&
-    data.complementary_colors.bottomwear &&
-    typeof data.complementary_colors.bottomwear.description === "string" &&
-    data.complementary_colors.bottomwear.hex_codes &&
-    data.complementary_colors.bottomwear.hex_codes.length >= 0
+    data.complementary &&
+    data.complementary.topwear &&
+    typeof data.complementary.topwear.description === "string" &&
+    data.complementary.topwear.hex_codes &&
+    data.complementary.topwear.hex_codes.length >= 0 &&
+    data.complementary.jackets &&
+    typeof data.complementary.jackets.description === "string" &&
+    data.complementary.jackets.hex_codes &&
+    data.complementary.jackets.hex_codes.length >= 0 &&
+    data.complementary.bottomwear &&
+    typeof data.complementary.bottomwear.description === "string" &&
+    data.complementary.bottomwear.hex_codes &&
+    data.complementary.bottomwear.hex_codes.length >= 0
   ) {
     return true;
   } else {

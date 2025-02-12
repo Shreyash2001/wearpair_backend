@@ -34,11 +34,12 @@ const getImageDetailsController = async (req, res) => {
 
 const getImagesByFilteringController = async (req, res) => {
   try {
-    const { gender, category, color, title } = req.query;
+    const { gender, category, color, titles } = req.query;
     console.log(req.query);
     if (!category || !gender) {
       return res.status(400).json({ error: "Missing required filters." });
     }
+    const titleList = Array.isArray(titles) ? titles : titles.split(",");
     const categoryMap = {
       topwear: "Clothing Item",
       jackets: "Clothing Item",
@@ -58,94 +59,20 @@ const getImagesByFilteringController = async (req, res) => {
     }
 
     // Fetch images from Google API
-    const query = { type, category, gender, color, title };
-    const images = await getGoogleImages(query);
-    return res.json({ category, images, title });
+    const imageResults = await Promise.all(
+      titleList.map((title) =>
+        getGoogleImages({ type, category, gender, color, title })
+      )
+    );
+    const responseData = titleList.map((title, index) => ({
+      title,
+      images: imageResults[index] || [],
+    }));
+    return res.json({ category, results: responseData });
   } catch (error) {
     console.error("Error fetching images:", error);
     return res.status(500).json({ error: "Server error" });
   }
-};
-
-const addCatalogToData = async (normalizedData) => {
-  const updateImages = async (section, type, gender) => {
-    if (!section || !section.recommended_types) return;
-
-    await Promise.all(
-      section.recommended_types.map(async (item) => {
-        const query = {
-          type: type,
-          title: item.title,
-          color: section?.hex_codes[0],
-          gender: gender,
-        };
-        const images = await getGoogleImages(query);
-        console.log(images);
-        item.image = images.length > 0 ? images[0] : "";
-      })
-    );
-  };
-
-  await updateImages(
-    normalizedData.complementary_colors.topwear,
-    "Clothing Item",
-    normalizedData?.gender
-  );
-  await updateImages(
-    normalizedData.complementary_colors.jackets,
-    "Clothing Item",
-    normalizedData?.gender
-  );
-  await updateImages(
-    normalizedData.complementary_colors.bottomwear,
-    "Clothing Item",
-    normalizedData?.gender
-  );
-  await updateImages(
-    normalizedData.accessories.women.handbags,
-    "Accessory",
-    normalizedData?.gender
-  );
-  await updateImages(
-    normalizedData.accessories.women.earrings,
-    "Accessory",
-    normalizedData?.gender
-  );
-  await updateImages(
-    normalizedData.accessories.women.bracelets,
-    "Accessory",
-    normalizedData?.gender
-  );
-  await updateImages(
-    normalizedData.accessories.women.necklaces,
-    "Accessory",
-    normalizedData?.gender
-  );
-  await updateImages(
-    normalizedData.accessories.women.footwear,
-    "Accessory",
-    normalizedData?.gender
-  );
-  await updateImages(
-    normalizedData.accessories.men.footwear,
-    "Accessory",
-    normalizedData?.gender
-  );
-  await updateImages(
-    normalizedData.accessories.men.watches,
-    "Accessory",
-    normalizedData?.gender
-  );
-  await updateImages(
-    normalizedData.accessories.men.sunglasses,
-    "Accessory",
-    normalizedData?.gender
-  );
-  await updateImages(
-    normalizedData.accessories.men.additional_accessories,
-    "Accessory",
-    normalizedData?.gender
-  );
 };
 
 const extractImageDetailsController = async (req, res) => {

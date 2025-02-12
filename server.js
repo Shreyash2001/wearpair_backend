@@ -9,8 +9,8 @@ const imageDetailsRouter = require("./routes/image_detail_routes");
 const app = express();
 
 const limiter = rateLimit({
-  windowMs: 60 * 1000, // 15 minute
-  limit: 5, // Limit each IP to 5 requests per windowMs
+  windowMs: 60 * 1000,
+  limit: 100,
   message: "Too many requests from this IP, please try again after a minute",
 });
 

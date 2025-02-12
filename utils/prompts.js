@@ -1,4 +1,4 @@
-const cloth_details_prompt = `1. Identify the clothing item in the image (e.g., shirt, pants, jacket, etc.).
+const cloth_details_prompt = `1. Identify the clothing item in the image.
 
 2. Describe the primary color of the clothing item in detail.
 
@@ -22,7 +22,7 @@ The response must follow this strict JSON structure:
        "description": "<string>",
        "hex_codes": ["<string>"]
    },
-   "complementary_colors": {
+   "complementary": {
        "topwear": {
            "description": "<string>",
            "recommended_types": "[<string>]",
