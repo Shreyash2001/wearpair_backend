@@ -7,8 +7,8 @@ const getGoogleImages = async (query) => {
   const API_KEY = process.env.GOOGLE_IMAGE_SEARCH_API_KEY; // Replace with your API Key
   const CX = process.env.GOOGLE_SEARCH_ENGINE_KEY; // Replace with your Search Engine ID
   console.log(clothingString);
-  const searchUrl = `https://www.googleapis.com/customsearch/v1?q=${clothingString}&cx=${CX}&searchType=image&key=${API_KEY}`;
-
+  const searchUrl = `https://www.googleapis.com/customsearch/v1?q=${clothingString}&cx=${CX}&searchType=image&tbm=shop&key=${API_KEY}`;
+  console.log(searchUrl);
   try {
     const response = await axios.get(searchUrl);
     const images = response.data.items.map((item) => item.link); // Extract image URLs
