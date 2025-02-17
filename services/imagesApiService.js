@@ -3,11 +3,11 @@ const axios = require("axios");
 const getGoogleImages = async (query) => {
   console.log(query);
   const color = await getNamedColor(query?.color);
-  const clothingString = `${query?.type}: ${query?.title}, Gender: ${query?.gender}, Color: ${color}`;
+  const clothingString = `${query?.type}: ${query?.title}, Gender: ${query?.gender}, ${color}`;
   const API_KEY = process.env.GOOGLE_IMAGE_SEARCH_API_KEY; // Replace with your API Key
   const CX = process.env.GOOGLE_SEARCH_ENGINE_KEY; // Replace with your Search Engine ID
   console.log(clothingString);
-  const searchUrl = `https://www.googleapis.com/customsearch/v1?q=${clothingString}&cx=${CX}&searchType=image&tbm=shop&key=${API_KEY}`;
+  const searchUrl = `https://www.googleapis.com/customsearch/v1?q=${clothingString}&cx=${CX}&searchType=image&key=${API_KEY}`;
   console.log(searchUrl);
   try {
     const response = await axios.get(searchUrl);
